@@ -9,7 +9,7 @@ auth = tweepy.OAuthHandler(secrets.KEY, secrets.SECRET)
 auth.set_access_token(secrets.ACCESS_TOKEN, secrets.ACCESS_SECRET)
 
 api = tweepy.API(auth)
-user_tweets = tweepy.Cursor(api.user_timeline, id="Nimzee_Nimo").items()
+user_tweets = tweepy.Cursor(api.user_timeline, id="Nimzee_Nimo", include_rts='false').items(20)
 
 for tweet in user_tweets:
     print(tweet.text)
