@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+import pprint
 import json
 import tweepy
 import csv
@@ -9,10 +12,11 @@ auth = tweepy.OAuthHandler(secrets.KEY, secrets.SECRET)
 auth.set_access_token(secrets.ACCESS_TOKEN, secrets.ACCESS_SECRET)
 
 api = tweepy.API(auth)
-user_tweets = tweepy.Cursor(api.user_timeline, id="Nimzee_Nimo", include_rts='false').items(20)
+user_tweets = tweepy.Cursor(api.user_timeline, screen_name="Nimzee_Nimo").items(1)
+# tweets_json = json.loads(user_tweets)
 
 for tweet in user_tweets:
-    print(tweet.text)
+    pprint.pprint(tweet._json['user']['screen_name'], indent=1)
 
 # print('Name: ' + user_name)
 # print('Location: ' + user_location)
