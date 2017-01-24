@@ -6,12 +6,12 @@ welcome = "Welcome @{} to your Twitter Status Sentiments Analysis"
 
 user_name = "Enter your twitter account username (with/without '@'): "
 
-period = """Enter the number of statuses to fetch.
-Maximum number of statuses is 500 statuses: """
+tweets = """Enter the number of tweets to fetch.
+Maximum number of tweets is 500 tweets: """
 
 invalid_user = "The username you have provided doesn't exsist!"
 
-invalid_period = """That number is invalid.
+invalid_tweets = """That input is invalid.
 Please enter a number between 1 and 500: """
 
 terminate = '''Do you want to enter another username or quit?

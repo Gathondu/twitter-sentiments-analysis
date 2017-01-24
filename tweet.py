@@ -18,12 +18,21 @@ class Tweet(object):
         # initialize a tweepy API class with credentials
         self.api = tweepy.API(self.auth)
         self.userName = None
-        self.statuses = None
+        self.tweets = None
         self.terminate = None
-        self.user = None
+        self.userTweets = None
+        self.jsonFile = 'tweets.json'
+        self.wordCount = {}
 
     def _clear(self):
         os.system('cls' if os.name == 'nt' else 'clear')
+
+    # Function that checks if a file exists
+    def exist(self, file):
+        if os.path.exists(file):
+            # if the file exists open it and clear everything inside
+            f = open(file, 'w')
+            f.close()
 
     def validateUser(self, name):
         user = self.api.get_user(screen_name=name)
@@ -48,16 +57,31 @@ class Tweet(object):
         # welcome user
         print(user_prompts.welcome.format(self.userName))
 
-        self.statuses = input(user_prompts.statuses)
+        self.tweets = input(user_prompts.tweets)
         self._clear()
-        while self.statuses < 0 and self.statuses > 500:
-            self.statuses = input(user_prompts.invalid_statuses)
+
+        # check input is an integer
+        while not re.match(r'\d', self.tweets):
+            self.tweets = input(user_prompts.invalid_tweets)
             self._clear()
 
-        # get user statuses
-        self.user = tweepy.Cursor(api.user_timeline,
-                                  id=self.userName).items(self.statuses)
+        while int(self.tweets) < 1 or int(self.tweets) > 500:
+            self.tweets = input(user_prompts.invalid_tweets)
+            self._clear()
 
+        # get user tweets
+        self.userTweets = tweepy.Cursor(self.api.user_timeline,
+                                        id=self.userName).items(
+                                        int(self.tweets))
 
+        # check if file exsist. create if doesn't and clean if exsists
+        self.exist(self.jsonFile)
+
+        f = open(self.jsonFile, 'w')
+        # dump data to file
+        for twit in self.userTweets:
+            json.dump(twit.text, f, skipkeys=True,
+                      ensure_ascii=False)
+        f.close()
 t = Tweet()
 t.prompt()
