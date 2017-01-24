@@ -2,6 +2,7 @@
 
 import json
 import tweepy
+import os
 import re
 import tweet_secrets as secrets
 import user_prompts
@@ -20,19 +21,27 @@ class Tweet(object):
         self.period = None
         self.terminate = None
 
+    def _clear(self):
+        os.system('cls' if os.name == 'nt' else 'clear')
+
     def prompt(self, user=None):
         try:
             self.userName = user or input(user_prompts.user_name)
+            self._clear()
             # check if user used @ and remove it
             if re.match(r'^@', self.userName):
                 chars = list(self.userName)
                 chars.remove('@')
                 self.userName = ''.join(chars)
-            user_data = tweepy.Cursor(self.api.user_timeline,
-                                      id=self.userName).items(1)
-        except tweepy.error.TweepError as t:
-            print(t['message'])
-            print(user_prompts.invalid_user)
 
-t = Tweet()
-t.prompt('@456dfg')
+            # welcome user
+            print(user_prompts.welcome.format(self.userName))
+
+            self.period = input(user_prompts.period)
+            self._clear()
+            while self.period not in str(list(range(1, 9))):
+                self.period = input(user_prompts.invalid_period)
+            print(self.period)
+        except Exception as e:
+            print(e.args[0])
+            print(user_prompts.invalid_user)
