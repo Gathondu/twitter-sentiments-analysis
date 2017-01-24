@@ -35,53 +35,83 @@ class Tweet(object):
             f.close()
 
     def validateUser(self, name):
-        user = self.api.get_user(screen_name=name)
-        if user.screen_name is None:
-            return False
-        return True
+        try:
+            user = self.api.get_user(screen_name=name)
+        except tweepy.TweepError:
+            print(user_prompts.invalid_user)
+            self.prompt()
+            self.validateUser(self.userName)
+
+    # functioin to validate number of tweets to fetch is valid
+    def validateTweetNumber(self, number):
+        # check input is an integer
+        while not re.match(r'\d', number):
+            number = input(user_prompts.invalid_tweets)
+            self._clear()
+
+        while int(number) < 1 or int(number) > 500:
+            number = input(user_prompts.invalid_tweets)
+            self._clear()
+        return number
 
     def prompt(self):
         self.userName = input(user_prompts.user_name)
-        self._clear()
         # check if user used @ and remove it
         if re.match(r'^@', self.userName):
             chars = list(self.userName)
             chars.remove('@')
             self.userName = ''.join(chars)
 
-        # validate the user name
-        if not self.validateUser(self.userName):
-            print(user_prompts.invalid_user)
-            self.prompt()  # NOT RUNNING????
-
-        # welcome user
-        print(user_prompts.welcome.format(self.userName))
-
-        self.tweets = input(user_prompts.tweets)
-        self._clear()
-
-        # check input is an integer
-        while not re.match(r'\d', self.tweets):
-            self.tweets = input(user_prompts.invalid_tweets)
+        # if the propmt is called from within instance skip
+        if self.tweets is None:
+            self.tweets = input(user_prompts.tweets)
             self._clear()
+            self.tweets = self.validateTweetNumber(self.tweets)
+        else:
+            result = input(user_prompts.change_tweets).lower()
 
-        while int(self.tweets) < 1 or int(self.tweets) > 500:
-            self.tweets = input(user_prompts.invalid_tweets)
-            self._clear()
+            if result not in ('n', 'no'):
+                self._clear()
+                self.tweets = input(user_prompts.tweets)
+                self._clear()
+                self.tweets = self.validateTweetNumber(self.tweets)
 
+    def getTweets(self, user, number):
         # get user tweets
         self.userTweets = tweepy.Cursor(self.api.user_timeline,
-                                        id=self.userName).items(
-                                        int(self.tweets))
+                                        id=user).items(
+                                        int(number))
+
+
+def main():
+    t = Tweet()
+    t.prompt()
+
+    try:
+        # validate the user name
+        t.validateUser(t.userName)
+
+        # welcome user
+        print(user_prompts.welcome.format(t.userName))
+
+        t.getTweets(t.userName, t.tweets)
 
         # check if file exsist. create if doesn't and clean if exsists
-        self.exist(self.jsonFile)
+        t.exist(t.jsonFile)
 
-        f = open(self.jsonFile, 'w')
         # dump data to file
-        for twit in self.userTweets:
-            json.dump(twit.text, f, skipkeys=True,
-                      ensure_ascii=False)
+        count = 1
+        tweetDict = {}
+        for tweet in t.userTweets:
+            key = "tweet" + str(count)
+            tweetDict[key] = tweet.text
+            count += 1
+        f = open(t.jsonFile, 'w')
+        json.dump(tweetDict, f)
         f.close()
-t = Tweet()
-t.prompt()
+
+    except tweepy.TweepError as t:
+        print(t.args[0])
+
+if __name__ == '__main__':
+    main()

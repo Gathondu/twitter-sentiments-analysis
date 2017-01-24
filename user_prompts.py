@@ -16,3 +16,5 @@ Please enter a number between 1 and 500: """
 
 terminate = '''Do you want to enter another username or quit?
 type 'q' to quit or any key to continue: '''
+
+change_tweets = "Do you want to change the number of tweets to view? [Y]/n "
