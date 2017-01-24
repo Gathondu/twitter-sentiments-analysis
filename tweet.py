@@ -54,9 +54,10 @@ class Tweet(object):
             self.statuses = input(user_prompts.invalid_statuses)
             self._clear()
 
+        # get user statuses
         self.user = tweepy.Cursor(api.user_timeline,
                                   id=self.userName).items(self.statuses)
-        
+
 
 t = Tweet()
 t.prompt()
