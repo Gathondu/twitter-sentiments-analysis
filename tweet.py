@@ -3,6 +3,7 @@
 import json
 import tweepy
 import os
+import sys
 import re
 import tweet_secrets as secrets
 import user_prompts
@@ -27,6 +28,17 @@ class Tweet(object):
     def _clear(self):
         os.system('cls' if os.name == 'nt' else 'clear')
 
+    def _exit(self):
+        quit = input("Are you sure you want to quit? [y]/n ")
+        if quit.lower() not in ('n', 'no'):
+            # hack to validate username before displaying it
+            if self.is_valid(self.userName):
+                sys.exit(user_prompts.exit.format(self.userName))
+            sys.exit(user_prompts.exit.format(''))
+        else:
+            self._clear()
+            self.prompt()
+
     # Function that checks if a file exists
     def exist(self, file):
         if os.path.exists(file):
@@ -34,16 +46,30 @@ class Tweet(object):
             f = open(file, 'w')
             f.close()
 
-    def validateUser(self, name):
+    def is_valid(self, name):
         try:
+            if name.lower() in ('q', 'quit'):
+                return False
             user = self.api.get_user(screen_name=name)
+            return True
         except tweepy.TweepError:
+            return False
+
+    def validateUser(self, name):
+        # check if user want's to quit
+        if name.lower() in ('q', 'quit'):
+            self._exit()
+        if not self.is_valid(name):
             print(user_prompts.invalid_user)
             self.prompt()
             self.validateUser(self.userName)
 
     # functioin to validate number of tweets to fetch is valid
     def validateTweetNumber(self, number):
+        # check if user want's to quit
+        if number.lower() in ('q', 'quit'):
+            self._exit()
+
         # check input is an integer
         while not re.match(r'\d', number):
             number = input(user_prompts.invalid_tweets)
@@ -56,6 +82,11 @@ class Tweet(object):
 
     def prompt(self):
         self.userName = input(user_prompts.user_name)
+
+        # check if to quit
+        if self.userName in ('q', 'quit'):
+            self._exit()
+
         # check if user used @ and remove it
         if re.match(r'^@', self.userName):
             chars = list(self.userName)
@@ -82,6 +113,39 @@ class Tweet(object):
                                         id=user).items(
                                         int(number))
 
+    def dumpJson(self, tweets, file):
+        # dump data to file
+        count = 1
+        tweetDict = {}
+        detailsDict = {}  # stores the details of the tweet like time created
+        for tweet in tweets:
+            key = "tweet" + str(count)
+            detailsDict['date'] = tweet.created_at
+            detailsDict['text'] = tweet.text
+            tweetDict[key] = detailsDict
+            count += 1
+        f = open(file, 'w')
+        json.dump(tweetDict, f)
+        f.close()
+
+    def view(self):
+        result = input(view)
+        # check for numbers
+        while not re.match(r'\d', result):
+            self._clear()
+            print('@{}, please enter a number in the list!'.format(
+                self.userName))
+            self.view()
+
+        # check number in listed items
+        while int(result) not in list(range(1, 5)):
+            self._clear()
+            print('@{}, please enter a number in the list!'.format(
+                self.userName))
+            self.view()
+
+        return int(result)
+
 
 def main():
     t = Tweet()
@@ -94,21 +158,14 @@ def main():
         # welcome user
         print(user_prompts.welcome.format(t.userName))
 
+        # obtain user tweets
         t.getTweets(t.userName, t.tweets)
 
         # check if file exsist. create if doesn't and clean if exsists
         t.exist(t.jsonFile)
 
-        # dump data to file
-        count = 1
-        tweetDict = {}
-        for tweet in t.userTweets:
-            key = "tweet" + str(count)
-            tweetDict[key] = tweet.text
-            count += 1
-        f = open(t.jsonFile, 'w')
-        json.dump(tweetDict, f)
-        f.close()
+        # dump to json file
+        t.dumpJson(t.userTweets, t.jsonFile)
 
     except tweepy.TweepError as t:
         print(t.args[0])

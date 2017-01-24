@@ -19,7 +19,7 @@ type 'q' to quit or any key to continue: '''
 
 change_tweets = "Do you want to change the number of tweets to view? [Y]/n "
 
-exit = "Goodbye {}. See you later"
+exit = "Goodbye {}!!! See you later!"
 
 views = """Enter a number to depict how you would like to interact with the app.
 e.g 1 will list for you the help menu.
