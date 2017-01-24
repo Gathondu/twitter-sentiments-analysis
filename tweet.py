@@ -167,6 +167,9 @@ def main():
         # dump to json file
         t.dumpJson(t.userTweets, t.jsonFile)
 
+        # ask user what to view
+        view = t.view()
+
     except tweepy.TweepError as t:
         print(t.args[0])
 
