@@ -18,30 +18,46 @@ class Tweet(object):
         # initialize a tweepy API class with credentials
         self.api = tweepy.API(self.auth)
         self.userName = None
-        self.period = None
+        self.statuses = None
         self.terminate = None
+        self.user = None
 
     def _clear(self):
         os.system('cls' if os.name == 'nt' else 'clear')
 
-    def prompt(self, user=None):
-        try:
-            self.userName = user or input(user_prompts.user_name)
-            self._clear()
-            # check if user used @ and remove it
-            if re.match(r'^@', self.userName):
-                chars = list(self.userName)
-                chars.remove('@')
-                self.userName = ''.join(chars)
+    def validateUser(self, name):
+        user = self.api.get_user(screen_name=name)
+        if user.screen_name is None:
+            return False
+        return True
 
-            # welcome user
-            print(user_prompts.welcome.format(self.userName))
+    def prompt(self):
+        self.userName = input(user_prompts.user_name)
+        self._clear()
+        # check if user used @ and remove it
+        if re.match(r'^@', self.userName):
+            chars = list(self.userName)
+            chars.remove('@')
+            self.userName = ''.join(chars)
 
-            self.period = input(user_prompts.period)
-            self._clear()
-            while self.period not in str(list(range(1, 9))):
-                self.period = input(user_prompts.invalid_period)
-            print(self.period)
-        except Exception as e:
-            print(e.args[0])
+        # validate the user name
+        if not self.validateUser(self.userName):
             print(user_prompts.invalid_user)
+            self.prompt()  # NOT RUNNING????
+
+        # welcome user
+        print(user_prompts.welcome.format(self.userName))
+
+        self.statuses = input(user_prompts.statuses)
+        self._clear()
+        while self.statuses < 0 and self.statuses > 500:
+            self.statuses = input(user_prompts.invalid_statuses)
+            self._clear()
+
+        # get user statuses
+        self.user = tweepy.Cursor(api.user_timeline,
+                                  id=self.userName).items(self.statuses)
+
+
+t = Tweet()
+t.prompt()
