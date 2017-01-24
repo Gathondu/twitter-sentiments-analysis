@@ -19,7 +19,7 @@ type 'q' to quit or any key to continue: '''
 
 change_tweets = "Do you want to change the number of tweets to view? [Y]/n "
 
-exit = "Goodbye {}!!! See you later!"
+exit = "Goodbye {}{}!!! See you later!"
 
 views = """Enter a number to depict how you would like to interact with the app.
 e.g 1 will list for you the help menu.
@@ -30,12 +30,13 @@ e.g 1 will list for you the help menu.
         4. View sentiments analysis
 """
 
-help = """ Welcome {} to Twitter Sentiments Analysis help.
+help = """ Welcome @{} to Twitter Sentiments Analysis help.
 
 To quit the app, simply type q or quit at any interaction point
-e.g typing quit instead of @username, quits the program.
+e.g typing quit instead of @username, quits the program. This applies
+to quiting this help menu too.
 
-View Tweets option lets you view a list of the latest 10 tweets that you
+View Tweets option lets you view a list of the latest 20 tweets that you
 tweeted.
 
 View words rank lets you view a list of the words you have used in your tweets,

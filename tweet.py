@@ -8,6 +8,8 @@ import re
 import tweet_secrets as secrets
 import user_prompts
 
+from tables import print_table
+
 
 class Tweet(object):
 
@@ -33,8 +35,8 @@ class Tweet(object):
         if quit.lower() not in ('n', 'no'):
             # hack to validate username before displaying it
             if self.is_valid(self.userName):
-                sys.exit(user_prompts.exit.format(self.userName))
-            sys.exit(user_prompts.exit.format(''))
+                sys.exit(user_prompts.exit.format('@', self.userName))
+            sys.exit(user_prompts.exit.format('!', '!'))
         else:
             self._clear()
             self.prompt()
@@ -120,16 +122,20 @@ class Tweet(object):
         detailsDict = {}  # stores the details of the tweet like time created
         for tweet in tweets:
             key = "tweet" + str(count)
-            detailsDict['date'] = tweet.created_at
+            # convert datetime to string to make it json serializable
+            detailsDict['date'] = str(tweet.created_at)
             detailsDict['text'] = tweet.text
             tweetDict[key] = detailsDict
             count += 1
         f = open(file, 'w')
-        json.dump(tweetDict, f)
+        json.dump(tweetDict, f, skipkeys=True)
         f.close()
 
-    def view(self):
-        result = input(view)
+    def viewPage(self):
+        result = input(user_prompts.views)
+        # check if to quit
+        if result in ('q', 'quit'):
+            self._exit()
         # check for numbers
         while not re.match(r'\d', result):
             self._clear()
@@ -145,6 +151,49 @@ class Tweet(object):
             self.view()
 
         return int(result)
+
+    def view(self):
+        page = self.viewPage()
+        # 1. Help
+        if page == 1:
+            self._clear()
+            h = input(user_prompts.help.format(self.userName))
+            self._clear()
+            self.view()
+
+        # 2. View Tweets
+        if page == 2:
+            self._clear()
+            self.viewTweets()
+            t = input()
+            self._clear()
+            self.view()
+
+        # 3. View words ranks
+        if page == 3:
+            self._clear()
+            h = input(user_prompts.help)
+            self._clear()
+            self.view()
+
+        # 4. View sentiments analysis
+        if page == 4:
+            self._clear()
+            h = input(user_prompts.help)
+            self._clear()
+            self.view()
+
+    def viewTweets(self):
+        twits = json.load(open('tweets.json'))
+        # create table
+        table = [('Tweet:', 'Posted on:')]
+        count = 1
+        for twit in twits.keys():
+            if count > 20:  # return latest 20 tweets
+                continue
+            table.append((twit['text'], twit['date']))
+            count += 1
+        print_table(table)
 
 
 def main():
@@ -168,7 +217,7 @@ def main():
         t.dumpJson(t.userTweets, t.jsonFile)
 
         # ask user what to view
-        view = t.view()
+        t.view()
 
     except tweepy.TweepError as t:
         print(t.args[0])
