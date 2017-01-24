@@ -24,7 +24,7 @@ class Tweet(object):
     def _clear(self):
         os.system('cls' if os.name == 'nt' else 'clear')
 
-    def prompt(self, user=None):
+    def prompt(self):
         try:
             self.userName = user or input(user_prompts.user_name)
             self._clear()
