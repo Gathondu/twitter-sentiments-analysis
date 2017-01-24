@@ -6,13 +6,13 @@ welcome = "Welcome @{} to your Twitter Status Sentiments Analysis"
 
 user_name = "Enter your twitter account username (with/without '@'): "
 
-period = """Enter the period in weeks, from which to fetch data.
-Maximum number of weeks is 8 weeks: """
+period = """Enter the number of statuses to fetch.
+Maximum number of statuses is 500 statuses: """
 
 invalid_user = "The username you have provided doesn't exsist!"
 
-invalid_period = """That period is invalid.
-Please enter a number between 1 and 8: """
+invalid_period = """That number is invalid.
+Please enter a number between 1 and 500: """
 
 terminate = '''Do you want to enter another username or quit?
 type 'q' to quit or any key to continue: '''
