@@ -1,3 +1,3 @@
-launch.json
+*.json
 *.pyc
 *.cache
