@@ -8,7 +8,7 @@ import re
 import tweet_secrets as secrets
 import user_prompts
 
-from tables import print_table
+from tables import *
 
 
 class Tweet(object):
@@ -26,6 +26,11 @@ class Tweet(object):
         self.userTweets = None
         self.jsonFile = 'tweets.json'
         self.wordCount = {}
+        self.STOP_WORDS = {
+            'and', 'then', 'that', 'it',
+            'at', 'but', 'or', 'so', 'up',
+            'the', 'in', 'to', 'for', 'a'
+        }
 
     def _clear(self):
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -33,6 +38,7 @@ class Tweet(object):
     def _exit(self):
         quit = input("Are you sure you want to quit? [y]/n ")
         if quit.lower() not in ('n', 'no'):
+            self._clear()
             # hack to validate username before displaying it
             if self.is_valid(self.userName):
                 sys.exit(user_prompts.exit.format('@', self.userName))
@@ -126,9 +132,10 @@ class Tweet(object):
             detailsDict['date'] = str(tweet.created_at)
             detailsDict['text'] = tweet.text
             tweetDict[key] = detailsDict
+            detailsDict = {}
             count += 1
         f = open(file, 'w')
-        json.dump(tweetDict, f, skipkeys=True)
+        json.dump(tweetDict, f)
         f.close()
 
     def viewPage(self):
@@ -157,43 +164,33 @@ class Tweet(object):
         # 1. Help
         if page == 1:
             self._clear()
-            h = input(user_prompts.help.format(self.userName))
+            print(user_prompts.help.format(self.userName))
+            h = input('\n\n PRESS ANY KEY TO GO BACK')
             self._clear()
             self.view()
 
         # 2. View Tweets
         if page == 2:
             self._clear()
-            self.viewTweets()
-            t = input()
+            print(viewTweets(self.userName))
+            h = input('\n\n PRESS ANY KEY TO GO BACK')
             self._clear()
             self.view()
 
         # 3. View words ranks
         if page == 3:
             self._clear()
-            h = input(user_prompts.help)
+            print(viewRanks(self.wordCount,self.STOP_WORDS))
+            h = input('\n\n PRESS ANY KEY TO GO BACK')
             self._clear()
             self.view()
 
         # 4. View sentiments analysis
         if page == 4:
             self._clear()
-            h = input(user_prompts.help)
+            h = input('\n\n PRESS ANY KEY TO GO BACK')
             self._clear()
             self.view()
-
-    def viewTweets(self):
-        twits = json.load(open('tweets.json'))
-        # create table
-        table = [('Tweet:', 'Posted on:')]
-        count = 1
-        for twit in twits.keys():
-            if count > 20:  # return latest 20 tweets
-                continue
-            table.append((twit['text'], twit['date']))
-            count += 1
-        print_table(table)
 
 
 def main():

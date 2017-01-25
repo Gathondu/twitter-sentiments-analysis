@@ -1,25 +1,51 @@
-def print_table(rows):
-    """print_table(rows)
-    Prints out a table using the data in `rows`, which is assumed to be a
-    sequence of sequences with the 0th element being the header.
-    """
+import json
 
-    # - figure out column widths
-    widths = [len(max(columns, key=len)) for columns in zip(*rows)]
+from terminaltables import SingleTable
+from colorclass import Color
 
-    # - print the header
-    header, data = rows[0], rows[1:]
-    print(
-        ' | '.join(format(title, "%ds" % width) for width, title in zip(
-            widths, header))
+
+def viewTweets(username):
+    twits = json.load(open('tweets.json'))
+    # create table
+    table = [[Color('{autocyan}Posted on:{/autocyan}'),
+             Color('{autored}Tweet:{/autored}')]]
+    count = 1
+    for twit in twits.items():
+        if count > 20:  # return latest 20 tweets
+            continue
+        table.append(
+            [
+                Color('{autored}'+twit[1]["date"]+'{/autored}'),
+                Color('{autocyan}'+twit[1]["text"]+'{/autocyan}')
+                ])
+        count += 1
+    table_instance = SingleTable(table, '@' + username)
+    # table_instance.inner_heading_row_border = True
+    # table_instance.inner_row_border = True
+    table_instance.justify_columns = {0: 'center', 1: 'center'}
+    return table_instance.table
+
+
+def viewRanks(wordsDict, stopwords):
+    twits = json.load(open('tweets.json'))
+    for twit in twits.items():
+        words = twit[1]['text']
+        for word in words:
+            if word not in stopwords:
+                if word not in wordsDict.keys():
+                    wordsDict[word] = 1
+                else:
+                    wordsDict[word] += 1
+    table_data = [[Color('WORDS'), Color('{autored}RANKS{/autored}')]]
+    for word in wordsDict.items():
+        table_data.append(
+            [
+                Color(word.key),
+                Color('{autored}' + word.value + '{/autored}')
+            ]
         )
-
-    # - print the separator
-    print('-+-'.join('-' * width for width in widths))
-
-    # - print the data
-    for row in data:
-        print(
-            " | ".join(format(cdata, "%ds" % width) for width, cdata in zip(
-                widths, row))
-            )
+    table_instance = SingleTable(table_data, 'Word Frequency')
+    table_instance.inner_heading_row_border = True
+    table_instance.inner_row_border = True
+    table_instance.justify_columns = {0: 'center', 1: 'center'}
+    return table_instance.table
