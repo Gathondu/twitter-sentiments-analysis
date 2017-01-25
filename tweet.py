@@ -125,7 +125,7 @@ class Tweet(object):
         tweetDict = {}
         detailsDict = {}  # stores the details of the tweet like time created
         for tweet in tweets:
-            key = "tweet" + str(count)
+            key = "tweet " + str(count)
             # convert datetime to string to make it json serializable
             detailsDict['date'] = str(tweet.created_at)
             detailsDict['text'] = tweet.text
@@ -186,6 +186,7 @@ class Tweet(object):
         # 4. View sentiments analysis
         if page == 4:
             self._clear()
+            print(viewSentiments())
             h = input('\n\n PRESS ANY KEY TO GO BACK')
             self._clear()
             self.view()

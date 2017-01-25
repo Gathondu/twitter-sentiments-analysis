@@ -3,15 +3,20 @@ import json
 from terminaltables import SingleTable
 from colorclass import Color
 from textwrap import wrap
+from sentiments import getSentiment
+from tweet import Tweet
+
+
+def getFile():
+    return json.load(open('tweets.json'))
 
 
 def viewTweets(username):
-    twits = json.load(open('tweets.json'))
+    twits = getFile()
     # create table
     table = [[Color('{autocyan}Posted on:{/autocyan}'),
              Color('{autored}Tweet:{/autored}')]]
     table_instance = SingleTable(table, '@' + username)
-    max_width = table_instance.column_max_width(1)
 
     count = 1
     for twit in twits.items():
@@ -21,7 +26,7 @@ def viewTweets(username):
             [
                 Color('{autored}'+twit[1]["date"]+'{/autored}'),
                 Color('{autocyan}' +
-                      '\n'.join(wrap(twit[1]["text"], max_width)) +
+                      '\n'.join(wrap(twit[1]["text"], 70)) +
                       '{/autocyan}')
                 ])
         count += 1
@@ -32,7 +37,7 @@ def viewTweets(username):
 
 
 def viewRanks(wordsDict, stopwords):
-    twits = json.load(open('tweets.json'))
+    twits = getFile()
     for twit in twits.items():
         words = twit[1]['text'].split()
         for word in words:
@@ -50,6 +55,24 @@ def viewRanks(wordsDict, stopwords):
             ]
         )
     table_instance = SingleTable(table_data, 'Word Frequency')
+    table_instance.inner_heading_row_border = True
+    table_instance.inner_row_border = True
+    table_instance.justify_columns = {0: 'center', 1: 'center'}
+    return table_instance.table
+
+
+def viewSentiments():
+    twits = getFile()
+    table_data = [[Color('TWEET'), Color('{autored}SENTIMENTS{/autored}')]]
+    table_instance = SingleTable(table_data, 'Sentiment Analysis')
+    # max_width = table_instance.column_max_width(50)
+    for twit in twits.items():
+        table_data.append(
+            [
+             '\n'.join(wrap(twit[1]['text'], 50)),
+             getSentiment(twit[1]['text'])
+            ]
+        )
     table_instance.inner_heading_row_border = True
     table_instance.inner_row_border = True
     table_instance.justify_columns = {0: 'center', 1: 'center'}
