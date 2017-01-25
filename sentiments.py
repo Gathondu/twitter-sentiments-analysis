@@ -13,4 +13,3 @@ def getSentiment(tweet):
         for item in result['docSentiment'].items():
             sentimentsList.append(item[0] + ": " + item[1])
         return sentimentsList
-
