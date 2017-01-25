@@ -26,11 +26,10 @@ class Tweet(object):
         self.userTweets = None
         self.jsonFile = 'tweets.json'
         self.wordCount = {}
-        self.STOP_WORDS = {
-            'and', 'then', 'that', 'it',
-            'at', 'but', 'or', 'so', 'up',
-            'the', 'in', 'to', 'for', 'a'
-        }
+
+        # obtain stop words from txt file
+        with open('stop_words.txt') as file:
+            self.STOP_WORDS = file.readlines()
 
     def _clear(self):
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -108,9 +107,8 @@ class Tweet(object):
             self.tweets = self.validateTweetNumber(self.tweets)
         else:
             result = input(user_prompts.change_tweets).lower()
-
+            self._clear()
             if result not in ('n', 'no'):
-                self._clear()
                 self.tweets = input(user_prompts.tweets)
                 self._clear()
                 self.tweets = self.validateTweetNumber(self.tweets)
@@ -180,7 +178,7 @@ class Tweet(object):
         # 3. View words ranks
         if page == 3:
             self._clear()
-            print(viewRanks(self.wordCount,self.STOP_WORDS))
+            print(viewRanks(self.wordCount, self.STOP_WORDS))
             h = input('\n\n PRESS ANY KEY TO GO BACK')
             self._clear()
             self.view()
