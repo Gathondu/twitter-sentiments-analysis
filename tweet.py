@@ -191,7 +191,7 @@ class Tweet():
                 print(Tables.viewTweets(self.userName, self.tweets))
                 more = input(user_prompts.more_tweets.format(self.tweets))
                 while int(more) in list(range(1, self.tweets+1)):
-                    self._clear
+                    self._clear()
                     print(Tables.viewTweets(self.userName, more))
                     h = input('\n\n PRESS ENTER KEY TO GO BACK')
                     self._clear()

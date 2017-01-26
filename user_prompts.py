@@ -3,8 +3,8 @@ from colorclass import Color
 and also all the messages and banners.
 """
 
-welcome = "Welcome" + Color('{green}'+" @{}"+'{/green}')+
-" to your Twitter Sentiments Analysis"
+welcome = "Welcome" + Color('{green}'+" @{}"+'{/green}'
+                            ) + " to your Twitter Sentiments Analysis"
 
 user_name = "Enter your twitter account username (with/without '@'): "
 
