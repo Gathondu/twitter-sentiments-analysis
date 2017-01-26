@@ -15,4 +15,3 @@ def getSentiment(tweet):
             return sentimentsList
     except Exception:
         return []
-

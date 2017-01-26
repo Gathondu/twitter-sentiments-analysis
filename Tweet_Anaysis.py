@@ -1,8 +1,9 @@
 import user_prompts
 import tweepy
+import tweet_tables
 
 from time import sleep
-from tables import *
+from tweet import Tweet
 
 
 def main():

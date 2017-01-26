@@ -39,8 +39,8 @@ help = Color(""" Welcome {green}@{}{/green} to Twitter Sentiments Analysis help.
 e.g typing quit instead of @username, quits the program. This applies
 to quiting this help menu too.
 
-View Tweets option lets you view a list of the random 20 tweets that you
-tweeted and when they were tweeted.
+View Tweets option lets you view a list of tweets that you tweeted and when 
+they were tweeted.
 
 View words rank lets you view a list of the words you have used in your tweets,
 excluding stop words (an, the, but, and,...), having ranked them from the

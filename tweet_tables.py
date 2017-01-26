@@ -1,11 +1,11 @@
 import json
+import re
 
 from terminaltables import SingleTable
 from colorclass import Color
 from textwrap import wrap
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-from tweet import Tweet
 from collections import Counter
 from tqdm import tqdm
 
@@ -22,7 +22,7 @@ def viewTweets(username, number):
     twits = getFile()
     # create table
     table = [[Color('{autocyan}TWEET:{/autocyan}'),
-             Color('{autored}POSTED ON:{/autored}')]]
+              Color('{autored}POSTED ON:{/autored}')]]
     table_instance = SingleTable(table, Color('{green}' +
                                               '@'+username+'{/green}'))
 
@@ -50,9 +50,13 @@ def viewRanks(number):
     words = []
     for twit in tqdm(twits.items(), total=number, desc="Ranking words..."):
         words.extend(word_tokenize(twit[1]['tweet']))
-    words = [word for word in words if word.lower() not in stopWords]
+    words = [
+        word for word in words if word.lower() not in stopWords and
+        re.match(r'\w', word)
+        ]
     wordsDict = Counter(words)
-    sortedList = sorted(wordsDict.items(), key=lambda x: x[1], reverse=True)
+    sortedList = sorted(wordsDict.items(),
+                        key=lambda x: x[1], reverse=True)
     table_data = [[Color('WORDS'), Color('{autored}RANKS{/autored}')]]
     for word in sortedList:
         table_data.append(
@@ -72,10 +76,12 @@ def viewRanks(number):
 def viewSentiments(number):
     twits = getFile()
     table_data = [[Color('{cyan}TWEET{/cyan}'),
-                  Color('{autored}SENTIMENTS{/autored}')]]
+                   Color('{autored}SENTIMENTS{/autored}')]]
     table_instance = SingleTable(table_data,
-                                 Color('{green}Sentiment Analysis{/green}'))
-    for twit in tqdm(twits.items(), total=number, desc="Analysing sentiments..."):
+                                 Color(
+                                  '{green}Sentiment Analysis{/green}'))
+    for twit in tqdm(twits.items(), total=number,
+                     desc="Analysing sentiments..."):
         sentiment = twit[1]['sentiments']
         sentString = ''
         for item in sentiment:
@@ -83,8 +89,9 @@ def viewSentiments(number):
         sentString = sentString.strip()
         table_data.append(
             [
-             Color('{cyan}'+'\n'.join(wrap(twit[1]['tweet'], 80))+'{/cyan}'),
-             Color('{red}' + sentString + '{/red}')
+                Color('{cyan}' +
+                      '\n'.join(wrap(twit[1]['tweet'], 80))+'{/cyan}'),
+                Color('{red}' + sentString + '{/red}')
             ]
         )
     table_instance.inner_heading_row_border = True

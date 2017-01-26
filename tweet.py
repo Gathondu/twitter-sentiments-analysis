@@ -8,10 +8,10 @@ import re
 import tweet_secrets as secrets
 import user_prompts
 
+import tweet_tables as Tables
 from colorclass import Color
 from tqdm import tqdm
 from sentiments import getSentiment
-from tables import *
 from time import sleep
 
 
@@ -42,9 +42,10 @@ class Tweet():
             if self.validName:
                 sys.exit(user_prompts.exit.format('@', self.userName))
             sys.exit(user_prompts.exit.format('!', '!'))
+            os.remove('tweets.json')
         else:
             self._clear()
-            main()
+            self.view()
 
     # Function that checks if a file exists
     def exist(self, file):
@@ -89,7 +90,7 @@ class Tweet():
         while int(number) < 1 or int(number) > 10:
             number = input(user_prompts.invalid_tweets)
             self._clear()
-        return number
+        return int(number)
 
     def prompt(self):
         self.userName = input(user_prompts.user_name)
@@ -119,7 +120,8 @@ class Tweet():
 
     def getTweets(self, user):
         text = "Fetching tweets @{}. Please wait".format(user)
-        with tqdm(total=self.tweets, unit='B', unit_scale=True, desc=text) as pbar:
+        with tqdm(
+             total=self.tweets, unit='B', unit_scale=True, desc=text) as pbar:
             for twit in self.fetchTweets(user):
                 details = {}
                 details['date'] = str(twit.created_at)
@@ -131,7 +133,8 @@ class Tweet():
 
     def fetchTweets(self, user):
         # get user tweets
-        return tweepy.Cursor(self.api.user_timeline, id=user).items(self.tweets)
+        return tweepy.Cursor(
+            self.api.user_timeline, id=user).items(self.tweets)
 
     def dumpJson(self, file):
         f = open(file, 'w')
@@ -173,10 +176,10 @@ class Tweet():
         if page == 2:
             try:
                 self._clear()
-                print(viewTweets(self.userName, self.tweets))
+                print(Tables.viewTweets(self.userName, self.tweets))
                 more = input(user_prompts.more_tweets)
                 while int(more) in list(range(1, 51)):
-                    print(viewTweets(self.userName, more))
+                    print(Tables.viewTweets(self.userName, more))
                     h = input('\n\n PRESS ENTER KEY TO GO BACK')
                     self._clear()
                     self.view()
@@ -190,7 +193,7 @@ class Tweet():
         # 3. View words ranks
         if page == 3:
             self._clear()
-            print(viewRanks(self.tweets))
+            print(Tables.viewRanks(self.tweets))
             h = input('\n\n PRESS ENTER KEY TO GO BACK')
             self._clear()
             self.view()
@@ -198,7 +201,7 @@ class Tweet():
         # 4. View sentiments analysis
         if page == 4:
             self._clear()
-            print(viewSentiments(self.tweets))
+            print(Tables.viewSentiments(self.tweets))
             h = input('\n\n PRESS ENTER KEY TO GO BACK')
             self._clear()
             self.view()
