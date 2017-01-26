@@ -29,6 +29,8 @@ All the required modules are in the [requirements.txt](requirements.txt) so make
 
 ## Running the twitter sentiments analysis application
 
+**View the asciinema video on this [*link*]((http://asciinema.org/a/3dla6yn1t8lhoyf0japnb827o)).**
+
 1. Go to the directory where you have the project cloned and open a terminal from there. For windows it's 
    `SHIFT KEY + RIGHT CLICK` and choose open command line and unix based systems just right click and open
    terminal.
