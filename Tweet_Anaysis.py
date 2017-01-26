@@ -15,8 +15,7 @@ def main():
         t.validateUser(t.userName)
         t._clear()
         # obtain user tweets
-        t.getTweets(t.userName)
-        # t.progress(20, 'obtaining @{} tweets'.format(t.userName), 0.5)
+        t.getTweets(t.userName, t.rt)
 
         # check if file exsist. create if doesn't and clean if exsists
         t.exist(t.jsonFile)

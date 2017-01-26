@@ -30,6 +30,7 @@ class Tweet():
         self.jsonFile = 'tweets.json'
         self.wordCount = {}
         self.validName = False
+        self.rt = True
 
     def _clear(self):
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -108,6 +109,11 @@ class Tweet():
         # if the propmt is called from within instance skip
         if self.tweets is None:
             self.tweets = input(user_prompts.tweets)
+            rt = input(user_prompts.rt)
+            if rt.lower() in ('n', 'no'):
+                self.rt = False
+            else:
+                self.rt = True
             self._clear()
             self.tweets = self.validateTweetNumber(self.tweets)
         else:
@@ -115,14 +121,19 @@ class Tweet():
             self._clear()
             if result not in ('n', 'no'):
                 self.tweets = input(user_prompts.tweets)
+                rt = input(user_prompts.rt)
+                if rt.lower() in ('n', 'no'):
+                    self.rt = False
+                else:
+                    self.rt = True
                 self._clear()
                 self.tweets = self.validateTweetNumber(self.tweets)
 
-    def getTweets(self, user):
+    def getTweets(self, user, rt):
         text = "Fetching tweets @{}. Please wait".format(user)
         with tqdm(
              total=self.tweets, unit='B', unit_scale=True, desc=text) as pbar:
-            for twit in self.fetchTweets(user):
+            for twit in self.fetchTweets(user, rt):
                 details = {}
                 details['date'] = str(twit.created_at)
                 details['tweet'] = twit.text
@@ -131,10 +142,11 @@ class Tweet():
                 pbar.update(1)
             pbar.close()
 
-    def fetchTweets(self, user):
+    def fetchTweets(self, user, rt):
         # get user tweets
         return tweepy.Cursor(
-            self.api.user_timeline, id=user).items(self.tweets)
+            self.api.user_timeline, id=user,
+            include_rts=rt).items(self.tweets)
 
     def dumpJson(self, file):
         f = open(file, 'w')
@@ -177,8 +189,9 @@ class Tweet():
             try:
                 self._clear()
                 print(Tables.viewTweets(self.userName, self.tweets))
-                more = input(user_prompts.more_tweets)
-                while int(more) in list(range(1, 51)):
+                more = input(user_prompts.more_tweets.format(self.tweets))
+                while int(more) in list(range(1, self.tweets+1)):
+                    self._clear
                     print(Tables.viewTweets(self.userName, more))
                     h = input('\n\n PRESS ENTER KEY TO GO BACK')
                     self._clear()

@@ -3,14 +3,18 @@ from colorclass import Color
 and also all the messages and banners.
 """
 
-welcome = "Welcome" + Color('{green}'+" @{}"+'{/green}')+" to your Twitter Sentiments Analysis"
+welcome = "Welcome" + Color('{green}'+" @{}"+'{/green}')+
+" to your Twitter Sentiments Analysis"
 
 user_name = "Enter your twitter account username (with/without '@'): "
 
 tweets = """Enter the number of tweets to fetch.
 Maximum number of tweets is 10 tweets: """
 
-invalid_user = Color("{red}The username you have provided doesn't exsist!{/red}")
+rt = "Include retweets? [Y]/n "
+
+invalid_user = Color(
+        "{red}The username you have provided doesn't exsist!{/red}")
 
 invalid_tweets = Color("""{red}That input is invalid.
 Please enter a number between 1 and 10:{/red} """)
@@ -20,7 +24,7 @@ type 'q' to quit or any key to continue: '''
 
 change_tweets = "Do you want to change the number of tweets to view? [Y]/n "
 
-more_tweets = "View more tweets? Enter a number between 1 and 10: "
+more_tweets = "View more tweets? Enter a number between 1 and {}: "
 
 exit = Color("{green}Goodbye {}{}!!! See you later!{/green}")
 
@@ -39,7 +43,7 @@ help = Color(""" Welcome {green}@{}{/green} to Twitter Sentiments Analysis help.
 e.g typing quit instead of @username, quits the program. This applies
 to quiting this help menu too.
 
-View Tweets option lets you view a list of tweets that you tweeted and when 
+View Tweets option lets you view a list of tweets that you tweeted and when
 they were tweeted.
 
 View words rank lets you view a list of the words you have used in your tweets,

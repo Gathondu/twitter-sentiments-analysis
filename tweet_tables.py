@@ -30,11 +30,10 @@ def viewTweets(username, number):
     for twit in twits.items():
         if count > int(number):
             continue
+        text = '\n'.join(wrap(twit[1]["tweet"], 80))
         table.append(
             [
-                Color('{autocyan}' +
-                      '\n'.join(wrap(twit[1]["tweet"], 80)) +
-                      '{/autocyan}'),
+                Color('{autocyan}' + text + '{/autocyan}'),
                 Color('{autored}'+twit[1]["date"]+'{/autored}')
                 ])
         count += 1
@@ -57,7 +56,8 @@ def viewRanks(number):
     wordsDict = Counter(words)
     sortedList = sorted(wordsDict.items(),
                         key=lambda x: x[1], reverse=True)
-    table_data = [[Color('WORDS'), Color('{autored}RANKS{/autored}')]]
+    table_data = [[Color('{cyan}WORDS{/cyan}'),
+                   Color('{autored}RANKS{/autored}')]]
     for word in sortedList:
         table_data.append(
             [
@@ -77,9 +77,6 @@ def viewSentiments(number):
     twits = getFile()
     table_data = [[Color('{cyan}TWEET{/cyan}'),
                    Color('{autored}SENTIMENTS{/autored}')]]
-    table_instance = SingleTable(table_data,
-                                 Color(
-                                  '{green}Sentiment Analysis{/green}'))
     for twit in tqdm(twits.items(), total=number,
                      desc="Analysing sentiments..."):
         sentiment = twit[1]['sentiments']
@@ -87,13 +84,16 @@ def viewSentiments(number):
         for item in sentiment:
             sentString += item + '\n'
         sentString = sentString.strip()
+        text = '\n'.join(wrap(twit[1]['tweet'], 80))
         table_data.append(
             [
-                Color('{cyan}' +
-                      '\n'.join(wrap(twit[1]['tweet'], 80))+'{/cyan}'),
+                Color('{cyan}' + text + '{/cyan}'),
                 Color('{red}' + sentString + '{/red}')
             ]
         )
+    table_instance = SingleTable(table_data,
+                                 Color(
+                                  '{green}Sentiment Analysis{/green}'))
     table_instance.inner_heading_row_border = True
     table_instance.inner_row_border = True
     table_instance.justify_columns = {0: 'left', 1: 'left'}
