@@ -1,4 +1,3 @@
-import json
 import tweet_secrets as secret
 
 from watson_developer_cloud import AlchemyLanguageV1

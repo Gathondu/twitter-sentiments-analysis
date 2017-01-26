@@ -5,8 +5,10 @@ import tweepy
 import os
 import sys
 import re
+import tqdm
 import tweet_secrets as secrets
 import user_prompts
+from colorclass import Color
 
 from tables import *
 
@@ -26,10 +28,7 @@ class Tweet(object):
         self.userTweets = None
         self.jsonFile = 'tweets.json'
         self.wordCount = {}
-
-        # obtain stop words from txt file
-        with open('stop_words.txt') as file:
-            self.STOP_WORDS = file.readlines()
+        self.validName = False
 
     def _clear(self):
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -39,7 +38,7 @@ class Tweet(object):
         if quit.lower() not in ('n', 'no'):
             self._clear()
             # hack to validate username before displaying it
-            if self.is_valid(self.userName):
+            if self.validName:
                 sys.exit(user_prompts.exit.format('@', self.userName))
             sys.exit(user_prompts.exit.format('!', '!'))
         else:
@@ -56,10 +55,13 @@ class Tweet(object):
     def is_valid(self, name):
         try:
             if name.lower() in ('q', 'quit'):
+                self.validName = False
                 return False
             user = self.api.get_user(screen_name=name)
+            self.validName = True
             return True
         except tweepy.TweepError:
+            self.validName = True
             return False
 
     def validateUser(self, name):
@@ -144,15 +146,15 @@ class Tweet(object):
         # check for numbers
         while not re.match(r'\d', result):
             self._clear()
-            print('@{}, please enter a number in the list!'.format(
-                self.userName))
+            print(Color('{red}@{}, please enter a number in the list!{/red}')
+                  .format(self.userName))
             self.view()
 
         # check number in listed items
         while int(result) not in list(range(1, 5)):
             self._clear()
-            print('@{}, please enter a number in the list!'.format(
-                self.userName))
+            print(Color('{red}@{}, please enter a number in the list!{/red}')
+                  .format(self.userName))
             self.view()
 
         return int(result)
@@ -163,7 +165,7 @@ class Tweet(object):
         if page == 1:
             self._clear()
             print(user_prompts.help.format(self.userName))
-            h = input('\n\n PRESS ANY KEY TO GO BACK')
+            h = input('\n\n PRESS ENTER KEY TO GO BACK')
             self._clear()
             self.view()
 
@@ -171,15 +173,15 @@ class Tweet(object):
         if page == 2:
             self._clear()
             print(viewTweets(self.userName))
-            h = input('\n\n PRESS ANY KEY TO GO BACK')
+            h = input('\n\n PRESS ENTER KEY TO GO BACK')
             self._clear()
             self.view()
 
         # 3. View words ranks
         if page == 3:
             self._clear()
-            print(viewRanks(self.wordCount, self.STOP_WORDS))
-            h = input('\n\n PRESS ANY KEY TO GO BACK')
+            print(viewRanks())
+            h = input('\n\n PRESS ENTER KEY TO GO BACK')
             self._clear()
             self.view()
 
@@ -187,7 +189,7 @@ class Tweet(object):
         if page == 4:
             self._clear()
             print(viewSentiments())
-            h = input('\n\n PRESS ANY KEY TO GO BACK')
+            h = input('\n\n PRESS ENTER KEY TO GO BACK')
             self._clear()
             self.view()
 

@@ -1,25 +1,26 @@
+from colorclass import Color
 """This file store all the prompts that the console app will use
 and also all the messages and banners.
 """
 
-welcome = "Welcome @{} to your Twitter Status Sentiments Analysis"
+welcome = "Welcome" + Color('{green}'+" @{}"+'{/green}')+" to your Twitter Sentiments Analysis"
 
 user_name = "Enter your twitter account username (with/without '@'): "
 
 tweets = """Enter the number of tweets to fetch.
 Maximum number of tweets is 500 tweets: """
 
-invalid_user = "The username you have provided doesn't exsist!"
+invalid_user = Color("{red}The username you have provided doesn't exsist!{/red}")
 
-invalid_tweets = """That input is invalid.
-Please enter a number between 1 and 500: """
+invalid_tweets = Color("""{red}That input is invalid.
+Please enter a number between 1 and 500:{/red} """)
 
 terminate = '''Do you want to enter another username or quit?
 type 'q' to quit or any key to continue: '''
 
 change_tweets = "Do you want to change the number of tweets to view? [Y]/n "
 
-exit = "Goodbye {}{}!!! See you later!"
+exit = Color("{green}Goodbye {}{}!!! See you later!{/green}")
 
 views = """Enter a number to depict how you would like to interact with the app.
 e.g 1 will list for you the help menu.
@@ -28,11 +29,11 @@ e.g 1 will list for you the help menu.
         2. View Tweets
         3. View words ranks
         4. View sentiments analysis
-"""
+>>> """
 
-help = """ Welcome @{} to Twitter Sentiments Analysis help.
+help = Color(""" Welcome {green}@{}{/green} to Twitter Sentiments Analysis help.
 
-To quit the app, simply type q or quit at any interaction point
+{red}To quit the app, simply type q or quit at any interaction point{/red}
 e.g typing quit instead of @username, quits the program. This applies
 to quiting this help menu too.
 
@@ -46,5 +47,5 @@ highly used to the least used.
 View sentiments analysis displays an analysis of your sentiments/mood of your
 tweets depending on your choice of words in the tweet.
 
-Have FUN!!
-"""
+{green}Have FUN!!{/green}
+""")
