@@ -8,17 +8,19 @@ welcome = "Welcome" + Color('{green}'+" @{}"+'{/green}')+" to your Twitter Senti
 user_name = "Enter your twitter account username (with/without '@'): "
 
 tweets = """Enter the number of tweets to fetch.
-Maximum number of tweets is 500 tweets: """
+Maximum number of tweets is 10 tweets: """
 
 invalid_user = Color("{red}The username you have provided doesn't exsist!{/red}")
 
 invalid_tweets = Color("""{red}That input is invalid.
-Please enter a number between 1 and 500:{/red} """)
+Please enter a number between 1 and 10:{/red} """)
 
 terminate = '''Do you want to enter another username or quit?
 type 'q' to quit or any key to continue: '''
 
 change_tweets = "Do you want to change the number of tweets to view? [Y]/n "
+
+more_tweets = "View more tweets? Enter a number between 1 and 10: "
 
 exit = Color("{green}Goodbye {}{}!!! See you later!{/green}")
 

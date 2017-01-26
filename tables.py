@@ -1,14 +1,13 @@
 import json
-import tqdm
 
 from terminaltables import SingleTable
 from colorclass import Color
 from textwrap import wrap
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-from sentiments import getSentiment
 from tweet import Tweet
 from collections import Counter
+from tqdm import tqdm
 
 
 def getStopwords():
@@ -19,8 +18,8 @@ def getFile():
     return json.load(open('tweets.json'))
 
 
-def viewTweets(username):
-    twits = tqdm(getFile())
+def viewTweets(username, number):
+    twits = getFile()
     # create table
     table = [[Color('{autocyan}TWEET:{/autocyan}'),
              Color('{autored}POSTED ON:{/autored}')]]
@@ -28,13 +27,13 @@ def viewTweets(username):
                                               '@'+username+'{/green}'))
 
     count = 1
-    for twit in tqdm(twits.items()):
-        if count > 20:  # return latest 20 tweets
+    for twit in twits.items():
+        if count > int(number):
             continue
         table.append(
             [
                 Color('{autocyan}' +
-                      '\n'.join(wrap(twit[1]["text"], 80)) +
+                      '\n'.join(wrap(twit[1]["tweet"], 80)) +
                       '{/autocyan}'),
                 Color('{autored}'+twit[1]["date"]+'{/autored}')
                 ])
@@ -45,12 +44,12 @@ def viewTweets(username):
     return table_instance.table
 
 
-def viewRanks():
+def viewRanks(number):
     twits = getFile()
     stopWords = getStopwords()
     words = []
-    for twit in twits.items():
-        words.extend(word_tokenize(twit[1]['text']))
+    for twit in tqdm(twits.items(), total=number, desc="Ranking words..."):
+        words.extend(word_tokenize(twit[1]['tweet']))
     words = [word for word in words if word.lower() not in stopWords]
     wordsDict = Counter(words)
     sortedList = sorted(wordsDict.items(), key=lambda x: x[1], reverse=True)
@@ -70,21 +69,21 @@ def viewRanks():
     return table_instance.table
 
 
-def viewSentiments():
+def viewSentiments(number):
     twits = getFile()
     table_data = [[Color('{cyan}TWEET{/cyan}'),
                   Color('{autored}SENTIMENTS{/autored}')]]
     table_instance = SingleTable(table_data,
                                  Color('{green}Sentiment Analysis{/green}'))
-    for twit in twits.items():
-        sentiment = getSentiment(twit[1]['text'])
+    for twit in tqdm(twits.items(), total=number, desc="Analysing sentiments..."):
+        sentiment = twit[1]['sentiments']
         sentString = ''
         for item in sentiment:
             sentString += item + '\n'
         sentString = sentString.strip()
         table_data.append(
             [
-             Color('{cyan}'+'\n'.join(wrap(twit[1]['text'], 80))+'{/cyan}'),
+             Color('{cyan}'+'\n'.join(wrap(twit[1]['tweet'], 80))+'{/cyan}'),
              Color('{red}' + sentString + '{/red}')
             ]
         )

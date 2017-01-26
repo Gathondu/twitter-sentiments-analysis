@@ -5,15 +5,17 @@ import tweepy
 import os
 import sys
 import re
-import tqdm
 import tweet_secrets as secrets
 import user_prompts
+
 from colorclass import Color
-
+from tqdm import tqdm
+from sentiments import getSentiment
 from tables import *
+from time import sleep
 
 
-class Tweet(object):
+class Tweet():
 
     def __init__(self):
         # twitter api uses OAuth for authorisation so set it up below
@@ -24,8 +26,7 @@ class Tweet(object):
         self.api = tweepy.API(self.auth)
         self.userName = None
         self.tweets = None
-        self.terminate = None
-        self.userTweets = None
+        self.userTweets = {}
         self.jsonFile = 'tweets.json'
         self.wordCount = {}
         self.validName = False
@@ -43,7 +44,7 @@ class Tweet(object):
             sys.exit(user_prompts.exit.format('!', '!'))
         else:
             self._clear()
-            self.prompt()
+            main()
 
     # Function that checks if a file exists
     def exist(self, file):
@@ -65,6 +66,7 @@ class Tweet(object):
             return False
 
     def validateUser(self, name):
+        print("Validating user.....")
         # check if user want's to quit
         if name.lower() in ('q', 'quit'):
             self._exit()
@@ -73,7 +75,7 @@ class Tweet(object):
             self.prompt()
             self.validateUser(self.userName)
 
-    # functioin to validate number of tweets to fetch is valid
+    # function to validate number of tweets to fetch is valid
     def validateTweetNumber(self, number):
         # check if user want's to quit
         if number.lower() in ('q', 'quit'):
@@ -84,7 +86,7 @@ class Tweet(object):
             number = input(user_prompts.invalid_tweets)
             self._clear()
 
-        while int(number) < 1 or int(number) > 500:
+        while int(number) < 1 or int(number) > 10:
             number = input(user_prompts.invalid_tweets)
             self._clear()
         return number
@@ -115,27 +117,25 @@ class Tweet(object):
                 self._clear()
                 self.tweets = self.validateTweetNumber(self.tweets)
 
-    def getTweets(self, user, number):
-        # get user tweets
-        self.userTweets = tweepy.Cursor(self.api.user_timeline,
-                                        id=user).items(
-                                        int(number))
+    def getTweets(self, user):
+        text = "Fetching tweets @{}. Please wait".format(user)
+        with tqdm(total=self.tweets, unit='B', unit_scale=True, desc=text) as pbar:
+            for twit in self.fetchTweets(user):
+                details = {}
+                details['date'] = str(twit.created_at)
+                details['tweet'] = twit.text
+                details['sentiments'] = getSentiment(twit.text)
+                self.userTweets[twit.id] = details
+                pbar.update(1)
+            pbar.close()
 
-    def dumpJson(self, tweets, file):
-        # dump data to file
-        count = 1
-        tweetDict = {}
-        detailsDict = {}  # stores the details of the tweet like time created
-        for tweet in tweets:
-            key = "tweet " + str(count)
-            # convert datetime to string to make it json serializable
-            detailsDict['date'] = str(tweet.created_at)
-            detailsDict['text'] = tweet.text
-            tweetDict[key] = detailsDict
-            detailsDict = {}
-            count += 1
+    def fetchTweets(self, user):
+        # get user tweets
+        return tweepy.Cursor(self.api.user_timeline, id=user).items(self.tweets)
+
+    def dumpJson(self, file):
         f = open(file, 'w')
-        json.dump(tweetDict, f)
+        json.dump(self.userTweets, f, indent=4)
         f.close()
 
     def viewPage(self):
@@ -171,16 +171,26 @@ class Tweet(object):
 
         # 2. View Tweets
         if page == 2:
-            self._clear()
-            print(viewTweets(self.userName))
-            h = input('\n\n PRESS ENTER KEY TO GO BACK')
-            self._clear()
-            self.view()
+            try:
+                self._clear()
+                print(viewTweets(self.userName, self.tweets))
+                more = input(user_prompts.more_tweets)
+                while int(more) in list(range(1, 51)):
+                    print(viewTweets(self.userName, more))
+                    h = input('\n\n PRESS ENTER KEY TO GO BACK')
+                    self._clear()
+                    self.view()
+                else:
+                    self._clear()
+                    self.view()
+            except ValueError:
+                self._clear()
+                self.view()
 
         # 3. View words ranks
         if page == 3:
             self._clear()
-            print(viewRanks())
+            print(viewRanks(self.tweets))
             h = input('\n\n PRESS ENTER KEY TO GO BACK')
             self._clear()
             self.view()
@@ -188,37 +198,7 @@ class Tweet(object):
         # 4. View sentiments analysis
         if page == 4:
             self._clear()
-            print(viewSentiments())
+            print(viewSentiments(self.tweets))
             h = input('\n\n PRESS ENTER KEY TO GO BACK')
             self._clear()
             self.view()
-
-
-def main():
-    t = Tweet()
-    t.prompt()
-
-    try:
-        # validate the user name
-        t.validateUser(t.userName)
-
-        # welcome user
-        print(user_prompts.welcome.format(t.userName))
-
-        # obtain user tweets
-        t.getTweets(t.userName, t.tweets)
-
-        # check if file exsist. create if doesn't and clean if exsists
-        t.exist(t.jsonFile)
-
-        # dump to json file
-        t.dumpJson(t.userTweets, t.jsonFile)
-
-        # ask user what to view
-        t.view()
-
-    except tweepy.TweepError as t:
-        print(t.args[0])
-
-if __name__ == '__main__':
-    main()
