@@ -39,11 +39,12 @@ class Tweet():
         quit = input("Are you sure you want to quit? [y]/n ")
         if quit.lower() not in ('n', 'no'):
             self._clear()
+            if os.path.isfile('tweets.json'):
+                os.remove('tweets.json')
             # hack to validate username before displaying it
             if self.validName:
                 sys.exit(user_prompts.exit.format('@', self.userName))
             sys.exit(user_prompts.exit.format('!', '!'))
-            os.remove('tweets.json')
         else:
             self._clear()
             self.view()
