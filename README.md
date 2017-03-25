@@ -21,7 +21,7 @@ gives a detailed methodology to create and use a virtual environment.
 
 To clone my repository, run the following command on your terminal:
 
-   `git clone https://github.com/andela-gathondu/bc-14-twitter.git`
+   `git clone https://github.com/Gathondu/bc-14-twitter.git`
 
 ## Prerequisites
 
